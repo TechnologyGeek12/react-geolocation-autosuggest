@@ -27,14 +27,14 @@ import GeoLocation from 'react-geolocation-autosuggest';
 
 ```
 
-#prerequisite
+# prerequisite
 You need to include your Google map API key to you app. Somewhere in index.html.
 
 `<script src="https://maps.googleapis.com/maps/api/js?key=[YOUR_API_KEY]&libraries=places"></script>`
 
 Visit Google's API documentation to get your [Google API key](https://developers.google.com/maps/documentation/).
 
-#User will get these Output/data in onSelect method of GeoLocation
+# User will get these Output/data in onSelect method of GeoLocation
 
 ```javascript
 {
@@ -52,7 +52,7 @@ Visit Google's API documentation to get your [Google API key](https://developers
 
 # Examples
 
-##Basic Example with all default props
+## Basic Example with all default props
 
 ```jsx
 import React, { Component } from 'react';
@@ -73,7 +73,7 @@ export default App;
 
 ```
 
-##Example to show use of onSelect And onChange method
+## Example to show use of onSelect And onChange method
 
 ```jsx
 import React, { Component } from 'react';
