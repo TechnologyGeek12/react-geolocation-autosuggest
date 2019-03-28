@@ -7,13 +7,14 @@ React Google location auto-suggest/autocomplete to provide all possible informat
 
 A Node.js React package that gives Google map location api based autocomplete/autosuggest dropdown to search and select location from autosuggested places. It also give you the other useful information like Country, State, City, Pin-code with the fields as well and can be customise as per user requirment, rest information like street_number, lat, long etc can be seen in onSelect method along with above.
 
-![Geolocation image](https://github.com/TechnologyGeek12/react-geolocation-autosuggest/blob/master/src/geoLocationScreenshot.png)
+![Geolocation displeyInline false image](https://github.com/TechnologyGeek12/react-geolocation-autosuggest/blob/master/src/displayInlinefalse.png)
+![Geolocation displeyInline image](https://github.com/TechnologyGeek12/react-geolocation-autosuggest/blob/master/src/displayInlineTrue.png)
 
 # Installation
 The package can be installed via NPM:
-```
+```javascript
 npm install react-geolocation-autosuggest --save
-```
+
 yarn add react-geolocation-autosuggest
 ```
 react-geolocation-autosuggest can be imported as follows
@@ -34,7 +35,7 @@ You need to include your Google map API key to you app. Somewhere in index.html.
 
 Visit Google's API documentation to get your [Google API key](https://developers.google.com/maps/documentation/).
 
-# User will get these Output/data in onSelect method of GeoLocation
+## User will get these Output/data in onSelect method of GeoLocation
 
 ```javascript
 {
