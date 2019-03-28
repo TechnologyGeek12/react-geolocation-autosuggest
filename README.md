@@ -27,7 +27,7 @@ import GeoLocation from 'react-geolocation-autosuggest';
 
 ```
 
-# prerequisite
+# Prerequisite
 You need to include your Google map API key to you app. Somewhere in index.html.
 
 `<script src="https://maps.googleapis.com/maps/api/js?key=[YOUR_API_KEY]&libraries=places"></script>`
