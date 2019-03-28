@@ -1,10 +1,10 @@
 {
   "name": "react-geolocation-autosuggest",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "description": "React Google location auto-suggest/autocomplete to provide all possible information with fields like Country, State, City, Pin-code etc.",
-  "repository": "TechnologyGeek12/react-draggable-resizable-modal",
+  "repository": "TechnologyGeek12/react-geolocation-autosuggest",
   "license": "MIT",
   "keywords": [
     "React Geolocation Autosuggest",
