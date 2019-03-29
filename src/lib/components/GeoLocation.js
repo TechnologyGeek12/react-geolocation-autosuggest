@@ -95,11 +95,12 @@ class GeoLocation extends Component {
 
         this.state = {
             data: [],
-            searchText: this.props.value || '',
-            single: '',
+            searchText: this.props.preSelectedValue || '',
+            single: this.props.preSelectedValue || '',
             popper: '',
             suggestions: [],
             componentForm: {},
+            preSelectedValue: this.props.preSelectedValue
         };
 
         const google = window.google;
@@ -121,9 +122,19 @@ class GeoLocation extends Component {
         // this.onClose = this.onClose.bind(this);
     }
 
-    renderInputComponent=(inputProps)=> {
+    componentWillMount() {
+        this.props.preSelectedValue && this.updateInput(this.props.preSelectedValue);
+    }
+
+    componentWillUpdate(nextProps) {
+        if (nextProps.preSelectedValue && this.props.preSelectedValue !== nextProps.preSelectedValue) {
+            this.setState({ preSelectedValue: nextProps.preSelectedValue }, () => this.updateInput(nextProps.preSelectedValue));
+        }
+    }
+
+    renderInputComponent = (inputProps) => {
         const { classes, inputRef = () => { }, ref, ...other } = inputProps;
-    
+
         return (
             <TextField
                 fullWidth
@@ -201,7 +212,13 @@ class GeoLocation extends Component {
     }
 
     populateData(array) {
-        this.setState({ data: array });
+        if (this.state.preSelectedValue) {
+            selectedItemValue = array.length && array[0];
+            selectedItemValue && this.onItemSelection();
+        }
+        else {
+            this.setState({ data: array });
+        }
     }
 
     handleSuggestionsFetchRequested = ({ value }) => {
@@ -233,7 +250,8 @@ class GeoLocation extends Component {
         };
         this.setState({
             [name]: newValue,
-            componentForm: componentForm
+            componentForm: componentForm,
+            preSelectedValue: ''
         });
         this.updateInput(newValue);
         this.props.onChange && this.props.onChange(newValue);
@@ -293,6 +311,10 @@ class GeoLocation extends Component {
         this.setState({ componentForm: componentForm });
     }
 
+    updateOnSelectData = () => {
+        this.onSelect(this.state.componentForm);
+    }
+
     onSelect = (data) => {
         this.props.onSelect && this.props.onSelect(data);
     }
@@ -300,7 +322,7 @@ class GeoLocation extends Component {
     render() {
         const { classes } = this.props;
         const autosuggestProps = {
-            renderInputComponent:this.renderInputComponent,
+            renderInputComponent: this.renderInputComponent,
             suggestions: this.state.data,
             onSuggestionsFetchRequested: this.handleSuggestionsFetchRequested,
             onSuggestionsClearRequested: this.handleSuggestionsClearRequested,
@@ -346,7 +368,7 @@ class GeoLocation extends Component {
                             </Paper>
                         )}
                     />
-                   {this.props.errorText && <span style={{color:'red'}}>{this.props.errorText}</span>}
+                    {this.props.errorText && <span style={{ color: 'red' }}>{this.props.errorText}</span>}
                 </div>
                 {this.props.displayInline && <div className={classes.displayInlineBlock}>
                     {(this.props.isCountryVisible || this.props.showAllFields) && <TextField
@@ -355,6 +377,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('country', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
 
                     {(this.props.isStateVisible || this.props.showAllFields) && <TextField
@@ -363,6 +386,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('administrative_area_level_1', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                     {(this.props.isCityVisible || this.props.showAllFields) && <TextField
                         label={this.props.cityLabelText}
@@ -370,6 +394,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('locality', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                     {(this.props.isPinCodeVisible || this.props.showAllFields) && <TextField
                         label={this.props.pincodeLabelText}
@@ -377,6 +402,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('postal_code', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                 </div>}
                 {!this.props.displayInline && <div className={classes.displaySeprateBlock}>
@@ -386,6 +412,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('country', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
 
                     {(this.props.isStateVisible || this.props.showAllFields) && <TextField
@@ -394,6 +421,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('administrative_area_level_1', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                     {(this.props.isCityVisible || this.props.showAllFields) && <TextField
                         label={this.props.cityLabelText}
@@ -401,6 +429,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('locality', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                     {(this.props.isPinCodeVisible || this.props.showAllFields) && <TextField
                         label={this.props.pincodeLabelText}
@@ -408,6 +437,7 @@ class GeoLocation extends Component {
                         onChange={(e) => this.setFieldValue('postal_code', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
+                        onBlur={this.updateOnSelectData}
                     />}
                 </div>}
             </div>
@@ -433,11 +463,12 @@ GeoLocation.defaultProps = {
     displayInline: true,
     addressLabelText: 'Search Address...',
     errorText: '',
-    countryLabelText:'Country',
-    stateLabelText:'State',
-    cityLabelText:'City',
-    pincodeLabelText:'Pin code',
-    key:'autosuggestAddressSearch'
+    countryLabelText: 'Country',
+    stateLabelText: 'State',
+    cityLabelText: 'City',
+    pincodeLabelText: 'Pin code',
+    key: 'autosuggestAddressSearch',
+    preSelectedValue: ''
     // fixedWidthFields: true
 }
 

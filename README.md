@@ -3,7 +3,7 @@ React Google location auto-suggest/autocomplete to provide all possible informat
 
 
 <img src="https://img.shields.io/badge/Licence-MIT-blue.svg" alt="Licence" data-canonical-src="https://img.shields.io/badge/Licence-MIT-blue.svg" style="max-width:100%;"/>
-<img src="https://img.shields.io/badge/Version-0.0.7-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.0.7-brightgreen.svg" style="max-width:100%;"/>
+<img src="https://img.shields.io/badge/Version-0.0.8-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.0.8-brightgreen.svg" style="max-width:100%;"/>
 
 A Node.js React package that gives Google map location api based autocomplete/autosuggest dropdown to search and select location from autosuggested places. It also give you the other useful information like Country, State, City, Pin-code with the fields as well and can be customise as per user requirment, rest information like street_number, lat, long etc can be seen in onSelect method along with above.
 
@@ -86,6 +86,29 @@ class App extends Component {
 
 export default App;
 
+```
+
+## Example to pass preSelectedValue/default value to address search field and fill all other fields
+
+```javascript
+import React, { Component } from 'react';
+import GeoLocation from 'react-geolocation-autosuggest';
+
+class App extends Component {
+
+    render() {
+        return (
+            <div className="App" >
+                <GeoLocation
+                 preSelectedValue={'Avenida Corrientes 2252, Buenos Aires, Argentina'}
+                 // pass a valid address for better/exact match
+                />
+            </div>
+        );
+    }
+}
+
+export default App;
 ```
 
 ## Example to show use of onSelect And onChange method
@@ -334,7 +357,8 @@ export default App;
     stateLabelText:'State',
     cityLabelText:'City',
     pincodeLabelText:'Pin code',
-    key:'autosuggestAddressSearch'
+    key:'autosuggestAddressSearch',
+    preSelectedValue: ''
 ```
 
 # Available options list
@@ -357,6 +381,7 @@ export default App;
     cityLabelText: String,
     pincodeLabelText: String,
     key: String, 
+    preSelectedValue: String,
     onSelect: Function,
     onChange: Function     
 ```

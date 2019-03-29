@@ -189,7 +189,7 @@ var GeoLocation = function (_Component) {
                     stateFullDetail: '',
                     cityFullDetail: ''
                 };
-                _this.setState((_this$setState = {}, _defineProperty(_this$setState, name, newValue), _defineProperty(_this$setState, 'componentForm', componentForm), _this$setState));
+                _this.setState((_this$setState = {}, _defineProperty(_this$setState, name, newValue), _defineProperty(_this$setState, 'componentForm', componentForm), _defineProperty(_this$setState, 'preSelectedValue', ''), _this$setState));
                 _this.updateInput(newValue);
                 _this.props.onChange && _this.props.onChange(newValue);
             };
@@ -253,17 +253,22 @@ var GeoLocation = function (_Component) {
             _this.setState({ componentForm: componentForm });
         };
 
+        _this.updateOnSelectData = function () {
+            _this.onSelect(_this.state.componentForm);
+        };
+
         _this.onSelect = function (data) {
             _this.props.onSelect && _this.props.onSelect(data);
         };
 
         _this.state = {
             data: [],
-            searchText: _this.props.value || '',
-            single: '',
+            searchText: _this.props.preSelectedValue || '',
+            single: _this.props.preSelectedValue || '',
             popper: '',
             suggestions: [],
-            componentForm: {}
+            componentForm: {},
+            preSelectedValue: _this.props.preSelectedValue
         };
 
         var google = window.google;
@@ -286,6 +291,22 @@ var GeoLocation = function (_Component) {
     }
 
     _createClass(GeoLocation, [{
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            this.props.preSelectedValue && this.updateInput(this.props.preSelectedValue);
+        }
+    }, {
+        key: 'componentWillUpdate',
+        value: function componentWillUpdate(nextProps) {
+            var _this2 = this;
+
+            if (nextProps.preSelectedValue && this.props.preSelectedValue !== nextProps.preSelectedValue) {
+                this.setState({ preSelectedValue: nextProps.preSelectedValue }, function () {
+                    return _this2.updateInput(nextProps.preSelectedValue);
+                });
+            }
+        }
+    }, {
         key: 'getCurrentDataState',
         value: function getCurrentDataState() {
             return this.state.data;
@@ -300,18 +321,18 @@ var GeoLocation = function (_Component) {
     }, {
         key: 'updateInput',
         value: function updateInput(searchText) {
-            var _this2 = this;
+            var _this3 = this;
 
             if (searchText && searchText.trim().length > 0) {
                 this.setState({
                     searchText: searchText
                 }, function () {
-                    var outerScope = _this2;
-                    _this2.service.getPlacePredictions({
-                        input: _this2.state.searchText,
+                    var outerScope = _this3;
+                    _this3.service.getPlacePredictions({
+                        input: _this3.state.searchText,
                         // componentRestrictions: { country: 'us' },
                         // componentRestrictions:{ country: ["us","au"] },
-                        types: _this2.props.types
+                        types: _this3.props.types
                     }, function (predictions, fd) {
 
                         if (predictions) {
@@ -328,12 +349,17 @@ var GeoLocation = function (_Component) {
     }, {
         key: 'populateData',
         value: function populateData(array) {
-            this.setState({ data: array });
+            if (this.state.preSelectedValue) {
+                selectedItemValue = array.length && array[0];
+                selectedItemValue && this.onItemSelection();
+            } else {
+                this.setState({ data: array });
+            }
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var classes = this.props.classes;
 
@@ -396,37 +422,41 @@ var GeoLocation = function (_Component) {
                         label: this.props.countryLabelText,
                         value: this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('country', e);
+                            return _this4.setFieldValue('country', e);
                         },
                         style: { width: (count === 1 ? 100 : 100 / count - 1) + '%' },
-                        disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isStateVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.stateLabelText,
                         value: this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('administrative_area_level_1', e);
+                            return _this4.setFieldValue('administrative_area_level_1', e);
                         },
                         style: { width: (count === 1 ? 100 : 100 / count - 1) + '%' },
-                        disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isCityVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.cityLabelText,
                         value: this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('locality', e);
+                            return _this4.setFieldValue('locality', e);
                         },
                         style: { width: (count === 1 ? 100 : 100 / count - 1) + '%' },
-                        disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isPinCodeVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.pincodeLabelText,
                         value: this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('postal_code', e);
+                            return _this4.setFieldValue('postal_code', e);
                         },
                         style: { width: (count === 1 ? 100 : 100 / count - 1) + '%' },
-                        disabled: this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     })
                 ),
                 !this.props.displayInline && React.createElement(
@@ -436,37 +466,41 @@ var GeoLocation = function (_Component) {
                         label: this.props.countryLabelText,
                         value: this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('country', e);
+                            return _this4.setFieldValue('country', e);
                         },
                         style: { width: '100%', marginTop: 10 },
-                        disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isStateVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.stateLabelText,
                         value: this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('administrative_area_level_1', e);
+                            return _this4.setFieldValue('administrative_area_level_1', e);
                         },
                         style: { width: '100%', marginTop: 10 },
-                        disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isCityVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.cityLabelText,
                         value: this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('locality', e);
+                            return _this4.setFieldValue('locality', e);
                         },
                         style: { width: '100%', marginTop: 10 },
-                        disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     }),
                     (this.props.isPinCodeVisible || this.props.showAllFields) && React.createElement(TextField, {
                         label: this.props.pincodeLabelText,
                         value: this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : '',
                         onChange: function onChange(e) {
-                            return _this3.setFieldValue('postal_code', e);
+                            return _this4.setFieldValue('postal_code', e);
                         },
                         style: { width: '100%', marginTop: 10 },
-                        disabled: this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
+                        disabled: this.props.isPinCodeDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false,
+                        onBlur: this.updateOnSelectData
                     })
                 )
             );
@@ -498,7 +532,8 @@ GeoLocation.defaultProps = {
     stateLabelText: 'State',
     cityLabelText: 'City',
     pincodeLabelText: 'Pin code',
-    key: 'autosuggestAddressSearch'
+    key: 'autosuggestAddressSearch',
+    preSelectedValue: ''
     // fixedWidthFields: true
 };
 
