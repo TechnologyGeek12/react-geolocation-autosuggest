@@ -2,13 +2,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -67,35 +67,13 @@ var styles = function styles(theme) {
             borderBottom: '1px solid #2196f3',
             color: '#2196f3'
         },
-        floatingLabelFocusStyle: { focused: {
+        floatingLabelFocusStyle: {
+            focused: {
                 color: "#00ff00"
-            } }
-    };
-};
-
-function renderInputComponent(inputProps) {
-    var classes = inputProps.classes,
-        _inputProps$inputRef = inputProps.inputRef,
-        _inputRef = _inputProps$inputRef === undefined ? function () {} : _inputProps$inputRef,
-        ref = inputProps.ref,
-        other = _objectWithoutProperties(inputProps, ['classes', 'inputRef', 'ref']);
-
-    return React.createElement(TextField, Object.assign({
-        fullWidth: true,
-        underlinefocusstyle: styles.underlineStyle,
-        label: isDisable ? 'Add Google Api key in your index.html file to activate this field' : 'Search...',
-        InputProps: {
-            inputRef: function inputRef(node) {
-                ref(node);
-                _inputRef(node);
-            },
-            classes: {
-                // input: classes.input,
-                // focused: classes.focused,
             }
         }
-    }, other));
-}
+    };
+};
 
 function renderSuggestion(suggestion, _ref) {
     var query = _ref.query,
@@ -137,6 +115,30 @@ var GeoLocation = function (_Component) {
         _classCallCheck(this, GeoLocation);
 
         var _this = _possibleConstructorReturn(this, (GeoLocation.__proto__ || Object.getPrototypeOf(GeoLocation)).call(this, props));
+
+        _this.renderInputComponent = function (inputProps) {
+            var classes = inputProps.classes,
+                _inputProps$inputRef = inputProps.inputRef,
+                _inputRef = _inputProps$inputRef === undefined ? function () {} : _inputProps$inputRef,
+                ref = inputProps.ref,
+                other = _objectWithoutProperties(inputProps, ['classes', 'inputRef', 'ref']);
+
+            return React.createElement(TextField, Object.assign({
+                fullWidth: true,
+                underlinefocusstyle: styles.underlineStyle,
+                label: isDisable ? 'Add Google Api key in your index.html file to activate this field' : _this.props.addressLabelText,
+                InputProps: {
+                    inputRef: function inputRef(node) {
+                        ref(node);
+                        _inputRef(node);
+                    },
+                    classes: {
+                        // input: classes.input,
+                        // focused: classes.focused,
+                    }
+                }
+            }, other));
+        };
 
         _this.getSuggestions = function (value) {
             var inputValue = deburr(value.trim()).toLowerCase();
@@ -182,7 +184,10 @@ var GeoLocation = function (_Component) {
                     postal_code: 'long_name',
                     lat: '0.0',
                     lng: '0.0',
-                    description: ''
+                    description: '',
+                    countryFullDetail: '',
+                    stateFullDetail: '',
+                    cityFullDetail: ''
                 };
                 _this.setState((_this$setState = {}, _defineProperty(_this$setState, name, newValue), _defineProperty(_this$setState, 'componentForm', componentForm), _this$setState));
                 _this.updateInput(newValue);
@@ -201,7 +206,10 @@ var GeoLocation = function (_Component) {
                 postal_code: 'long_name',
                 lat: '0.0',
                 lng: '0.0',
-                description: ''
+                description: '',
+                countryFullDetail: '',
+                stateFullDetail: '',
+                cityFullDetail: ''
             };
             _this.getLatLgn(item.place_id, function (place) {
                 for (var i = 0; i < place[0].address_components.length; i++) {
@@ -209,6 +217,18 @@ var GeoLocation = function (_Component) {
                     if (componentForm[addressType]) {
                         var val = place[0].address_components[i][componentForm[addressType]];
                         componentForm[addressType] = val;
+                    }
+                    if (addressType === "country") {
+                        var _val = place[0].address_components[i];
+                        componentForm['countryFullDetail'] = _val;
+                    }
+                    if (addressType === "administrative_area_level_1") {
+                        var _val2 = place[0].address_components[i];
+                        componentForm['stateFullDetail'] = _val2;
+                    }
+                    if (addressType === "locality") {
+                        var _val3 = place[0].address_components[i];
+                        componentForm['cityFullDetail'] = _val3;
                     }
                 }
                 if (!componentForm['postal_code'] || componentForm['postal_code'] === 'long_name') {
@@ -220,9 +240,10 @@ var GeoLocation = function (_Component) {
                 componentForm.description = item.description;
                 // this.props.getFullAddress(componentForm);
             });
-            _this.onSelect(componentForm);
             setTimeout(function () {
-                _this.setState({ componentForm: componentForm });
+                _this.setState({ componentForm: componentForm }, function () {
+                    return _this.onSelect(componentForm);
+                });
             }, 300);
         };
 
@@ -317,7 +338,7 @@ var GeoLocation = function (_Component) {
             var classes = this.props.classes;
 
             var autosuggestProps = {
-                renderInputComponent: renderInputComponent,
+                renderInputComponent: this.renderInputComponent,
                 suggestions: this.state.data,
                 onSuggestionsFetchRequested: this.handleSuggestionsFetchRequested,
                 onSuggestionsClearRequested: this.handleSuggestionsClearRequested,
@@ -339,11 +360,11 @@ var GeoLocation = function (_Component) {
                 null,
                 React.createElement(
                     'div',
-                    { className: classes.root },
+                    { className: classes.root, key: this.props.key },
                     React.createElement(Autosuggest, Object.assign({}, autosuggestProps, {
                         inputProps: {
                             classes: classes,
-                            // placeholder: 'Search...',
+                            // placeholder: 'Search here...',
                             value: this.state.single,
                             onChange: this.handleChange('single'),
                             disabled: isDisable
@@ -361,13 +382,18 @@ var GeoLocation = function (_Component) {
                                 options.children
                             );
                         }
-                    }))
+                    })),
+                    this.props.errorText && React.createElement(
+                        'span',
+                        { style: { color: 'red' } },
+                        this.props.errorText
+                    )
                 ),
                 this.props.displayInline && React.createElement(
                     'div',
                     { className: classes.displayInlineBlock },
                     (this.props.isCountryVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'Country',
+                        label: this.props.countryLabelText,
                         value: this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('country', e);
@@ -376,7 +402,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isStateVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'State',
+                        label: this.props.stateLabelText,
                         value: this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('administrative_area_level_1', e);
@@ -385,7 +411,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isCityVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'City',
+                        label: this.props.cityLabelText,
                         value: this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('locality', e);
@@ -394,7 +420,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isPinCodeVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'Pin code',
+                        label: this.props.pincodeLabelText,
                         value: this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('postal_code', e);
@@ -407,7 +433,7 @@ var GeoLocation = function (_Component) {
                     'div',
                     { className: classes.displaySeprateBlock },
                     (this.props.isCountryVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'Country',
+                        label: this.props.countryLabelText,
                         value: this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('country', e);
@@ -416,7 +442,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isCountryDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isStateVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'State',
+                        label: this.props.stateLabelText,
                         value: this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('administrative_area_level_1', e);
@@ -425,7 +451,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isCityVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'City',
+                        label: this.props.cityLabelText,
                         value: this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('locality', e);
@@ -434,7 +460,7 @@ var GeoLocation = function (_Component) {
                         disabled: this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText ? true : false
                     }),
                     (this.props.isPinCodeVisible || this.props.showAllFields) && React.createElement(TextField, {
-                        label: 'Pin code',
+                        label: this.props.pincodeLabelText,
                         value: this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : '',
                         onChange: function onChange(e) {
                             return _this3.setFieldValue('postal_code', e);
@@ -465,7 +491,14 @@ GeoLocation.defaultProps = {
     isStateDisabled: false,
     isCityDisabled: false,
     isPinCodeDisabled: false,
-    displayInline: true
+    displayInline: true,
+    addressLabelText: 'Search Address...',
+    errorText: '',
+    countryLabelText: 'Country',
+    stateLabelText: 'State',
+    cityLabelText: 'City',
+    pincodeLabelText: 'Pin code',
+    key: 'autosuggestAddressSearch'
     // fixedWidthFields: true
 };
 

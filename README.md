@@ -3,7 +3,7 @@ React Google location auto-suggest/autocomplete to provide all possible informat
 
 
 <img src="https://img.shields.io/badge/Licence-MIT-blue.svg" alt="Licence" data-canonical-src="https://img.shields.io/badge/Licence-MIT-blue.svg" style="max-width:100%;"/>
-<img src="https://img.shields.io/badge/Version-0.0.6-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.0.6-brightgreen.svg" style="max-width:100%;"/>
+<img src="https://img.shields.io/badge/Version-0.0.7-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.0.7-brightgreen.svg" style="max-width:100%;"/>
 
 A Node.js React package that gives Google map location api based autocomplete/autosuggest dropdown to search and select location from autosuggested places. It also give you the other useful information like Country, State, City, Pin-code with the fields as well and can be customise as per user requirment, rest information like street_number, lat, long etc can be seen in onSelect method along with above.
 
@@ -38,16 +38,30 @@ Visit Google's API documentation to get your [Google API key](https://developers
 ## User will get these Output/data in onSelect method of GeoLocation
 
 ```javascript
-{
-"street_number":"2360",
-"route":"Amsterdam Avenue",
+{"street_number":"2235",
+"route":"5th Avenue",
 "locality":"New York",
 "administrative_area_level_1":"New York",
 "country":"United States",
-"postal_code":"10033",
-"lat":40.8458257,
-"lng":-73.93308890000003,
-"description":"2360 Amsterdam Avenue, New York, NY, USA"
+"postal_code":"10037",
+"lat":40.8131697,
+"lng":-73.93705539999996,
+"description":"2235 5th Avenue, New York, NY, USA",
+"countryFullDetail":{
+    "long_name":"United States",
+    "short_name":"US",
+    "types":["country","political"]
+    },
+"stateFullDetail":{
+    "long_name":"New York",
+    "short_name":"NY",
+    "types":["administrative_area_level_1","political"]
+    },
+"cityFullDetail":{
+    "long_name":"New York",
+    "short_name":"New York",
+    "types":["locality","political"]
+    }
 }
 ```
 
@@ -220,6 +234,33 @@ class App extends Component {
 export default App;
 ```
 
+## Example to pass labelText, errorText, and key(react key can help to update component if want in particular condition)
+
+```javascript
+import React, { Component } from 'react';
+import GeoLocation from 'react-geolocation-autosuggest';
+
+class App extends Component {
+
+    render() {
+        return (
+            <div className="App" >
+                <GeoLocation
+                 errorText={}
+                 countryLabelText={'Country'}
+                 stateLabelText={'State'}
+                 cityLabelText={'City'}
+                 pincodeLabelText={'Pin code'}
+                 key={'autosuggestAddressSearch'}
+                />
+            </div>
+        );
+    }
+}
+
+export default App;
+```
+
 ## Style prop
 
 You can create custom fields styles using the material-ui theme creator as all the fields are of material ui so all material-ui(v3.9.2) property can be applied.
@@ -287,6 +328,13 @@ export default App;
     isCityDisabled: false,
     isPinCodeDisabled: false,
     displayInline: true,
+    addressLabelText: 'Search Address...',
+    errorText: '',
+    countryLabelText:'Country',
+    stateLabelText:'State',
+    cityLabelText:'City',
+    pincodeLabelText:'Pin code',
+    key:'autosuggestAddressSearch'
 ```
 
 # Available options list
@@ -301,7 +349,14 @@ export default App;
     isStateDisabled: Boolean,
     isCityDisabled: Boolean,
     isPinCodeDisabled: Boolean,
-    displayInline: Boolean,  
+    displayInline: Boolean, 
+    addressLabelText: String,
+    errorText: String,
+    countryLabelText: String,
+    stateLabelText: String,
+    cityLabelText: String,
+    pincodeLabelText: String,
+    key: String, 
     onSelect: Function,
     onChange: Function     
 ```

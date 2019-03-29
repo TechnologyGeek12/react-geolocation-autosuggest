@@ -47,40 +47,19 @@ const styles = theme => ({
     displaySeprateBlock: {
         width: '100%'
     },
-    input: { 
-        borderBottom: '1px solid #2196f3' 
+    input: {
+        borderBottom: '1px solid #2196f3'
     },
     focused: {
         borderBottom: '1px solid #2196f3',
-        color:'#2196f3'
+        color: '#2196f3'
     },
-    floatingLabelFocusStyle:{ focused:{
-        color: "#00ff00"
-    }}
+    floatingLabelFocusStyle: {
+        focused: {
+            color: "#00ff00"
+        }
+    }
 });
-
-function renderInputComponent(inputProps) {
-    const { classes, inputRef = () => { }, ref, ...other } = inputProps;
-
-    return (
-        <TextField
-            fullWidth
-            underlinefocusstyle={styles.underlineStyle}
-            label={isDisable ? 'Add Google Api key in your index.html file to activate this field' : 'Search...'}
-            InputProps={{
-                inputRef: node => {
-                    ref(node);
-                    inputRef(node);
-                },
-                classes: {
-                    // input: classes.input,
-                    // focused: classes.focused,
-                },
-            }}
-            {...other}
-        />
-    );
-}
 
 function renderSuggestion(suggestion, { query, isHighlighted }) {
     const matches = match(suggestion.description, query);
@@ -140,6 +119,29 @@ class GeoLocation extends Component {
         this.getCurrentDataState = this.getCurrentDataState.bind(this);
         this.getLatLgn = this.getLatLgn.bind(this);
         // this.onClose = this.onClose.bind(this);
+    }
+
+    renderInputComponent=(inputProps)=> {
+        const { classes, inputRef = () => { }, ref, ...other } = inputProps;
+    
+        return (
+            <TextField
+                fullWidth
+                underlinefocusstyle={styles.underlineStyle}
+                label={isDisable ? 'Add Google Api key in your index.html file to activate this field' : this.props.addressLabelText}
+                InputProps={{
+                    inputRef: node => {
+                        ref(node);
+                        inputRef(node);
+                    },
+                    classes: {
+                        // input: classes.input,
+                        // focused: classes.focused,
+                    },
+                }}
+                {...other}
+            />
+        );
     }
 
     getSuggestions = (value) => {
@@ -224,7 +226,10 @@ class GeoLocation extends Component {
             postal_code: 'long_name',
             lat: '0.0',
             lng: '0.0',
-            description: ''
+            description: '',
+            countryFullDetail: '',
+            stateFullDetail: '',
+            cityFullDetail: ''
         };
         this.setState({
             [name]: newValue,
@@ -245,7 +250,10 @@ class GeoLocation extends Component {
             postal_code: 'long_name',
             lat: '0.0',
             lng: '0.0',
-            description: ''
+            description: '',
+            countryFullDetail: '',
+            stateFullDetail: '',
+            cityFullDetail: ''
         };
         this.getLatLgn(item.place_id, (place) => {
             for (let i = 0; i < place[0].address_components.length; i++) {
@@ -253,6 +261,18 @@ class GeoLocation extends Component {
                 if (componentForm[addressType]) {
                     let val = place[0].address_components[i][componentForm[addressType]];
                     componentForm[addressType] = val;
+                }
+                if (addressType === "country") {
+                    let val = place[0].address_components[i];
+                    componentForm['countryFullDetail'] = val;
+                }
+                if (addressType === "administrative_area_level_1") {
+                    let val = place[0].address_components[i];
+                    componentForm['stateFullDetail'] = val;
+                }
+                if (addressType === "locality") {
+                    let val = place[0].address_components[i];
+                    componentForm['cityFullDetail'] = val;
                 }
             }
             if (!componentForm['postal_code'] || componentForm['postal_code'] === 'long_name') { componentForm['postal_code'] = '00000' }
@@ -262,9 +282,8 @@ class GeoLocation extends Component {
             componentForm.description = item.description;
             // this.props.getFullAddress(componentForm);
         });
-        this.onSelect(componentForm);
         setTimeout(() => {
-            this.setState({ componentForm: componentForm });
+            this.setState({ componentForm: componentForm }, () => this.onSelect(componentForm));
         }, 300)
     }
 
@@ -281,7 +300,7 @@ class GeoLocation extends Component {
     render() {
         const { classes } = this.props;
         const autosuggestProps = {
-            renderInputComponent,
+            renderInputComponent:this.renderInputComponent,
             suggestions: this.state.data,
             onSuggestionsFetchRequested: this.handleSuggestionsFetchRequested,
             onSuggestionsClearRequested: this.handleSuggestionsClearRequested,
@@ -305,12 +324,12 @@ class GeoLocation extends Component {
         // }
         return (
             <div>
-                <div className={classes.root}>
+                <div className={classes.root} key={this.props.key}>
                     <Autosuggest
                         {...autosuggestProps}
                         inputProps={{
                             classes,
-                            // placeholder: 'Search...',
+                            // placeholder: 'Search here...',
                             value: this.state.single,
                             onChange: this.handleChange('single'),
                             disabled: isDisable
@@ -327,10 +346,11 @@ class GeoLocation extends Component {
                             </Paper>
                         )}
                     />
+                   {this.props.errorText && <span style={{color:'red'}}>{this.props.errorText}</span>}
                 </div>
                 {this.props.displayInline && <div className={classes.displayInlineBlock}>
                     {(this.props.isCountryVisible || this.props.showAllFields) && <TextField
-                        label="Country"
+                        label={this.props.countryLabelText}
                         value={this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : ''}
                         onChange={(e) => this.setFieldValue('country', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
@@ -338,21 +358,21 @@ class GeoLocation extends Component {
                     />}
 
                     {(this.props.isStateVisible || this.props.showAllFields) && <TextField
-                        label="State"
+                        label={this.props.stateLabelText}
                         value={this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : ''}
                         onChange={(e) => this.setFieldValue('administrative_area_level_1', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
                     />}
                     {(this.props.isCityVisible || this.props.showAllFields) && <TextField
-                        label="City"
+                        label={this.props.cityLabelText}
                         value={this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : ''}
                         onChange={(e) => this.setFieldValue('locality', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
                         disabled={(this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
                     />}
                     {(this.props.isPinCodeVisible || this.props.showAllFields) && <TextField
-                        label="Pin code"
+                        label={this.props.pincodeLabelText}
                         value={this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : ''}
                         onChange={(e) => this.setFieldValue('postal_code', e)}
                         style={{ width: `${count === 1 ? 100 : 100 / count - 1}%` }}
@@ -361,7 +381,7 @@ class GeoLocation extends Component {
                 </div>}
                 {!this.props.displayInline && <div className={classes.displaySeprateBlock}>
                     {(this.props.isCountryVisible || this.props.showAllFields) && <TextField
-                        label="Country"
+                        label={this.props.countryLabelText}
                         value={this.state.componentForm.country && this.state.componentForm.country !== 'long_name' ? this.state.componentForm.country : ''}
                         onChange={(e) => this.setFieldValue('country', e)}
                         style={{ width: '100%', marginTop: 10 }}
@@ -369,21 +389,21 @@ class GeoLocation extends Component {
                     />}
 
                     {(this.props.isStateVisible || this.props.showAllFields) && <TextField
-                        label="State"
+                        label={this.props.stateLabelText}
                         value={this.state.componentForm.administrative_area_level_1 && this.state.componentForm.administrative_area_level_1 !== 'long_name' ? this.state.componentForm.administrative_area_level_1 : ''}
                         onChange={(e) => this.setFieldValue('administrative_area_level_1', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isStateDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
                     />}
                     {(this.props.isCityVisible || this.props.showAllFields) && <TextField
-                        label="City"
+                        label={this.props.cityLabelText}
                         value={this.state.componentForm.locality && this.state.componentForm.locality !== 'long_name' ? this.state.componentForm.locality : ''}
                         onChange={(e) => this.setFieldValue('locality', e)}
                         style={{ width: '100%', marginTop: 10 }}
                         disabled={(this.props.isCityDisabled || this.props.isAllDisabled || !this.state.searchText) ? true : false}
                     />}
                     {(this.props.isPinCodeVisible || this.props.showAllFields) && <TextField
-                        label="Pin code"
+                        label={this.props.pincodeLabelText}
                         value={this.state.componentForm.postal_code && this.state.componentForm.postal_code !== '00000' && this.state.componentForm.postal_code !== 'long_name' ? this.state.componentForm.postal_code : ''}
                         onChange={(e) => this.setFieldValue('postal_code', e)}
                         style={{ width: '100%', marginTop: 10 }}
@@ -411,6 +431,13 @@ GeoLocation.defaultProps = {
     isCityDisabled: false,
     isPinCodeDisabled: false,
     displayInline: true,
+    addressLabelText: 'Search Address...',
+    errorText: '',
+    countryLabelText:'Country',
+    stateLabelText:'State',
+    cityLabelText:'City',
+    pincodeLabelText:'Pin code',
+    key:'autosuggestAddressSearch'
     // fixedWidthFields: true
 }
 
