@@ -301,7 +301,7 @@ var GeoLocation = function (_Component) {
             var _this2 = this;
 
             if (nextProps.preSelectedValue && this.props.preSelectedValue !== nextProps.preSelectedValue) {
-                this.setState({ preSelectedValue: nextProps.preSelectedValue }, function () {
+                this.setState({ preSelectedValue: nextProps.preSelectedValue, single: nextProps.preSelectedValue, searchText: nextProps.preSelectedValue }, function () {
                     return _this2.updateInput(nextProps.preSelectedValue);
                 });
             }

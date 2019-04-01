@@ -3,12 +3,14 @@ React Google location auto-suggest/autocomplete to provide all possible informat
 
 
 <img src="https://img.shields.io/badge/Licence-MIT-blue.svg" alt="Licence" data-canonical-src="https://img.shields.io/badge/Licence-MIT-blue.svg" style="max-width:100%;"/>
-<img src="https://img.shields.io/badge/Version-0.0.8-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.0.8-brightgreen.svg" style="max-width:100%;"/>
+<img src="https://img.shields.io/badge/Version-0.1.1-brightgreen.svg" alt="npm Version" data-canonical-src="https://img.shields.io/badge/Version-0.1.1-brightgreen.svg" style="max-width:100%;"/>
 
 A Node.js React package that gives Google map location api based autocomplete/autosuggest dropdown to search and select location from autosuggested places. It also give you the other useful information like Country, State, City, Pin-code with the fields as well and can be customise as per user requirment, rest information like street_number, lat, long etc can be seen in onSelect method along with above.
 
 ![Geolocation displeyInline false image](https://github.com/TechnologyGeek12/react-geolocation-autosuggest/blob/master/src/displayInlineFalse.png)
 ![Geolocation displeyInline image](https://github.com/TechnologyGeek12/react-geolocation-autosuggest/blob/master/src/displayInlineTrue.png)
+
+Click [here](https://technologygeek12.github.io/react-geolocation-autosuggest/) for live [demo](https://technologygeek12.github.io/react-geolocation-autosuggest/)
 
 # Installation
 The package can be installed via NPM:
